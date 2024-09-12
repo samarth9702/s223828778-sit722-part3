@@ -1,1 +1,76 @@
-# Your Solution
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-management
+  template:
+    metadata:
+      labels:
+        app: inventory-management
+    spec:
+      containers: 
+      - name: inventory-management
+        image: s223828778week7.azurecr.io/inventory-management:!
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PORT
+          value: "4002"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-management
+spec:
+  selector:
+    app: inventory-management
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4002
+
+
+---
+
+apiVersion: apps/v1
+kind: Deployment #Sets up a Kubernetes deployment that ensures 
+metadata:
+  name: book-catalog #Sets the name of the deployment
+spec:
+  replicas: 1 #Asks that this deployment maintain just one instance of our microservice.
+  selector:
+    matchLabels:
+      app: book-catalog #Links the deployment, pod, and service together
+  template: #A template for the pod designed to run our microservice
+    metadata:
+      labels:
+        app: book-catalog #Links the deployment, pod, and service
+    spec:
+      containers: 
+      - name: book-catalog
+        image: s223828778week7.azurecr.io/book-catalog:1
+        imagePullPolicy: IfNotPresent #Fetched the image from 
+        env: #Sets environment variables for the microservice
+        - name: PORT
+          value: "4001" #Sets the port for the microservice to 4001
+
+
+--- #Divides the configuration file into two main sections
+apiVersion: v1
+kind: Service #Sets up a Kubernetes service that generates a DNS record 
+metadata:
+  name: book-catalog #Sets the name of the service spec: selector:
+spec:
+  selector:
+    app: book-catalog #Links the deployment, pod, and service together
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4001
+      
